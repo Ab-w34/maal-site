@@ -110,15 +110,50 @@ navLinks.addEventListener("click", e=>{
 });
 
 /* ---------------- contact form ----------------
-   This is a front-end demo only. To make it live, either point it at a form
-   service (Formspree, Basin) or POST the fields to your own endpoint.       */
+   Submissions are forwarded to maalscore@gmail.com by Web3Forms.
+   PASTE YOUR ACCESS KEY ON THE NEXT LINE, between the quotes.          */
+const WEB3FORMS_KEY = "6e169928-caaf-4c91-97c2-63a4318e1949";
+
 const sendBtn = document.getElementById("sendBtn");
 const sendOk  = document.getElementById("sendOk");
-sendBtn.addEventListener("click", ()=>{
+
+sendBtn.addEventListener("click", async ()=>{
   const email = document.getElementById("fe").value.trim();
   if (!email || !email.includes("@")){ document.getElementById("fe").focus(); return; }
-  sendOk.style.display = "block";
-  ["fn","fo","fe","fm"].forEach(id=> document.getElementById(id).value = "");
+
+  const original = sendBtn.textContent;
+  sendBtn.disabled = true;
+  sendBtn.textContent = lang === "ar" ? "جارٍ الإرسال..." : "Sending...";
+
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject:    "MAAL — pilot request from the website",
+        from_name:  "MAAL website",
+        name:         document.getElementById("fn").value.trim(),
+        organisation: document.getElementById("fo").value.trim(),
+        email:        email,
+        message:      document.getElementById("fm").value.trim()
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || "send failed");
+
+    sendOk.style.display = "block";
+    ["fn","fo","fe","fm"].forEach(id => document.getElementById(id).value = "");
+  } catch (err) {
+    // Never show a success message for a request that did not arrive.
+    sendOk.style.display = "none";
+    alert(lang === "ar"
+      ? "تعذّر إرسال الطلب. راسلنا مباشرة على maalscore@gmail.com"
+      : "Could not send. Please email us directly at maalscore@gmail.com");
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = original;
+  }
 });
 
 renderFields(true);
