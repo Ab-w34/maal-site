@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maal</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<meta name="description" content="مآل تقرأ مستندات العميل الممسوحة ضوئيًا، وتستخرج الأرقام، وتطابقها بين المستندات، وتسلّم فريق الائتمان تقريرًا كل رقم فيه مرتبط بمصدره.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<!--
+  Maal — one-page site.
+
+  Structure
+    index.html              this file
+    assets/css/styles.css   all styling
+    assets/js/main.js       language toggle, evidence viewer, mobile nav, form
+    assets/img/             logo (dark + light) and favicon
+
+  Before you publish, change these:
+    1. Contact form       -> front-end only right now; see the note at the
+                             bottom of assets/js/main.js
+    2. Sample report data -> the applicant name, figures and filenames in the
+                             hero viewer and #evidence are illustrative. Swap
+                             them for a redacted real example.
+-->
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <img id="logoNav" src="assets/img/logo-dark.png" alt="مآل MAAL">
+      <span data-ar="الذكاء الائتماني" data-en="Credit Intelligence">الذكاء الائتماني</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" data-ar="القائمة" data-en="Menu">القائمة</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="#how" data-ar="كيف تعمل" data-en="How it works">كيف تعمل</a>
+      <a href="#evidence" data-ar="الأدلة" data-en="Evidence">الأدلة</a>
+      <a href="#documents" data-ar="المستندات" data-en="Documents">المستندات</a>
+      <a href="#workflow" data-ar="التكامل" data-en="Integration">التكامل</a>
+      <a href="demo.html" data-ar="العرض التفاعلي" data-en="Live demo">العرض التفاعلي</a>
+      <a href="#contact" data-ar="تواصل" data-en="Contact">تواصل</a>
+      <a href="#team" data-ar="الفريق" data-en="Team">الفريق</a>
+    </nav>
+    <div class="nav-side">
+      <button class="lang" id="langBtn">English</button>
+      <a class="btn" href="#contact" data-ar="اطلب تجربة" data-en="Request a pilot">اطلب تجربة</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 data-ar="من كومة مستندات إلى قرار ائتماني تستطيع الدفاع عنه"
+          data-en="From a stack of documents to a credit decision you can defend">من كومة مستندات إلى قرار ائتماني تستطيع الدفاع عنه</h1>
+      <p class="lede"
+         data-ar="مآل تقرأ مستندات العميل وتستخرج الأرقام، وتطابقها بين المستندات، وتسلّم فريق الائتمان تقريرًا كل رقم فيه مرتبط بملفه وصفحته وسطره."
+         data-en="MAAL reads your applicant's scanned documents, extracts the figures, reconciles them across files, and hands your credit team a report where every number links back to its file, page and line.">مآل تقرأ مستندات العميل وتستخرج الأرقام، وتطابقها بين المستندات، وتسلّم فريق الائتمان تقريرًا كل رقم فيه مرتبط بملفه وصفحته وسطره.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#contact" data-ar="اطلب تجربة تشغيلية" data-en="Request a pilot">اطلب تجربة تشغيلية</a>
+        <a class="btn btn-ghost" href="demo.html" data-ar="شاهد العرض التفاعلي" data-en="See the live demo">شاهد العرض التفاعلي</a>
+      </div>
+    </div>
+
+    <!-- interactive evidence viewer -->
+    <div class="viewer">
+      <div class="viewer-bar">
+        <span class="t" data-ar="تقرير مآل — مؤسسة البناء المتقدم" data-en="MAAL report — Advanced Construction Est.">تقرير مآل — مؤسسة البناء المتقدم</span>
+        <span class="f ltr">4 files · 27 pp</span>
+      </div>
+      <div class="viewer-body">
+        <div class="pane">
+          <h3 data-ar="الحقول المستخرجة" data-en="Extracted fields">الحقول المستخرجة</h3>
+          <div id="fields"></div>
+        </div>
+        <div class="pane">
+          <h3 data-ar="المصدر" data-en="Source">المصدر</h3>
+          <div class="src">
+            <div class="doc ltr"><span id="srcFile">contract.pdf</span><span id="srcLoc">p.3 · l.12</span></div>
+            <div class="lines" id="srcLines"></div>
+            <div class="note" id="srcNote"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-ar="التقييم الائتماني لا يبدأ بالنموذج. يبدأ بالورق."
+          data-en="Credit assessment doesn't start with the model. It starts with the paperwork.">التقييم الائتماني لا يبدأ بالنموذج. يبدأ بالورق.</h2>
+      <p data-ar="قبل أن يعمل أي نظام تسجيل، على شخص ما أن يقرأ الملف. هذه المرحلة هي التي تستهلك الوقت، وهي التي لا يعالجها أي نظام قائم."
+         data-en="Before any scoring system runs, someone has to read the file. That stage is where the time goes, and it's the stage no existing system touches.">قبل أن يعمل أي نظام تسجيل، على شخص ما أن يقرأ الملف. هذه المرحلة هي التي تستهلك الوقت، وهي التي لا يعالجها أي نظام قائم.</p>
+    </div>
+    <div class="problem-list">
+      <div class="problem-item">
+        <h3 data-ar="الملف يصل كصور" data-en="The file arrives as images">الملف يصل كصور</h3>
+        <p data-ar="سجل تجاري مصوَّر بالجوال، عقد ممسوح ضوئيًا بجودة متفاوتة، كشف بنكي بصيغة PDF غير قابلة للنسخ. لا شيء منها منظَّم، ولا شيء منها جاهز للتحليل."
+           data-en="A commercial registration photographed on a phone, a contract scanned at uneven quality, a bank statement in a PDF you can't copy from. None of it is structured, none of it is ready to analyse.">سجل تجاري مصوَّر بالجوال، عقد ممسوح ضوئيًا بجودة متفاوتة، كشف بنكي بصيغة PDF غير قابلة للنسخ. لا شيء منها منظَّم، ولا شيء منها جاهز للتحليل.</p>
+      </div>
+      <div class="problem-item">
+        <h3 data-ar="الأرقام تُدخَل يدويًا" data-en="Figures are re-keyed by hand">الأرقام تُدخَل يدويًا</h3>
+        <p data-ar="محلل يفتح المستند، ويقرأ، ويكتب الرقم في جدول. كل ملف يمر بالعملية نفسها، وكل خطوة نقل هي فرصة لخطأ لن يلاحظه أحد لاحقًا."
+           data-en="An analyst opens the document, reads it, and types the number into a sheet. Every file goes through the same process, and every transfer is a chance for an error nobody catches later.">محلل يفتح المستند، ويقرأ، ويكتب الرقم في جدول. كل ملف يمر بالعملية نفسها، وكل خطوة نقل هي فرصة لخطأ لن يلاحظه أحد لاحقًا.</p>
+      </div>
+      <div class="problem-item">
+        <h3 data-ar="التعارضات تمر بصمت" data-en="Conflicts pass silently">التعارضات تمر بصمت</h3>
+        <p data-ar="رقم سجل تجاري في العقد يختلف عن الذي في أمر الشراء. اسم طرف لا يطابق. تاريخ انتهاء مضى. هذه الفروق تظهر فقط لمن يقرأ المستندات جنبًا إلى جنب — وهذا نادرًا ما يحدث تحت ضغط الوقت."
+           data-en="A commercial registration number in the contract that differs from the one on the purchase order. A party name that doesn't match. An expiry date that has passed. These only surface for someone reading the documents side by side — which rarely happens under time pressure.">رقم سجل تجاري في العقد يختلف عن الذي في أمر الشراء. اسم طرف لا يطابق. تاريخ انتهاء مضى. هذه الفروق تظهر فقط لمن يقرأ المستندات جنبًا إلى جنب — وهذا نادرًا ما يحدث تحت ضغط الوقت.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section id="how" style="background:var(--blush-soft)">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-ar="خمس مراحل بين المستند والقرار" data-en="Five stages between the document and the decision">خمس مراحل بين المستند والقرار</h2>
+      <p data-ar="مآل تتولى المراحل الأربع الأولى. المرحلة الخامسة تبقى لفريقكم."
+         data-en="MAAL handles the first four. The fifth stays with your team.">مآل تتولى المراحل الأربع الأولى. المرحلة الخامسة تبقى لفريقكم.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3 data-ar="الاستلام" data-en="Ingest">الاستلام</h3>
+        <p data-ar="ملفات PDF وصور بأي جودة، عربية أو إنجليزية أو مختلطة."
+           data-en="PDFs and images at any quality, in Arabic, English or mixed.">ملفات PDF وصور بأي جودة، عربية أو إنجليزية أو مختلطة.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3 data-ar="التصنيف" data-en="Classify">التصنيف</h3>
+        <p data-ar="تحديد نوع كل مستند تلقائيًا قبل قراءته، دون أن يرتّبها أحد يدويًا."
+           data-en="Each document is identified before it's read, with no manual sorting.">تحديد نوع كل مستند تلقائيًا قبل قراءته، دون أن يرتّبها أحد يدويًا.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3 data-ar="الاستخراج" data-en="Extract">الاستخراج</h3>
+        <p data-ar="سحب الكيانات والأرقام المالية من كل صفحة، مع تسجيل موضع كل قيمة."
+           data-en="Entities and financial figures are pulled from each page, with the position of every value recorded.">سحب الكيانات والأرقام المالية من كل صفحة، مع تسجيل موضع كل قيمة.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <h3 data-ar="التحقق المتقاطع" data-en="Cross-check">التحقق المتقاطع</h3>
+        <p data-ar="مطابقة السجل التجاري والرقم الضريبي وأسماء الأطراف والتواريخ بين المستندات، وإبراز أي تعارض."
+           data-en="Registration numbers, VAT numbers, party names and dates are reconciled across documents, and conflicts are surfaced.">مطابقة السجل التجاري والرقم الضريبي وأسماء الأطراف والتواريخ بين المستندات، وإبراز أي تعارض.</p>
+      </div>
+      <div class="step">
+        <div class="n">05</div>
+        <h3 data-ar="القرار" data-en="Decide">القرار</h3>
+        <p data-ar="المختص يراجع التقرير، ويفتح المصادر، ويتخذ القرار. مآل لا تقرر."
+           data-en="Your analyst reviews the report, opens the sources, and decides. MAAL does not decide.">المختص يراجع التقرير، ويفتح المصادر، ويتخذ القرار. مآل لا تقرر.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVIDENCE ============ -->
+<section id="evidence">
+  <div class="wrap report">
+    <div>
+      <div class="sec-head" style="margin-bottom:24px">
+        <h2 data-ar="كل رقم في التقرير له مصدر" data-en="Every number in the report has a source">كل رقم في التقرير له مصدر</h2>
+        <p data-ar="مآل لا تعطيكم قيمة وتطلب منكم تصديقها. كل قيمة مستخرجة تحمل الملف والصفحة والسطر الذي جاءت منه، ويمكن للمختص فتحه والتحقق في ثانية."
+           data-en="MAAL doesn't hand you a value and ask you to trust it. Every extracted value carries the file, page and line it came from, and your analyst can open it and check in a second.">مآل لا تعطيكم قيمة وتطلب منكم تصديقها. كل قيمة مستخرجة تحمل الملف والصفحة والسطر الذي جاءت منه، ويمكن للمختص فتحه والتحقق في ثانية.</p>
+      </div>
+      <div class="problem-list" style="border-top:1px solid var(--line)">
+        <div class="problem-item ev">
+          <h3 data-ar="للمراجعة" data-en="For review">للمراجعة</h3>
+          <p data-ar="المختص يفتح المصدر بدل أن يعيد قراءة الملف كاملًا." data-en="Your analyst opens the source instead of re-reading the whole file.">المختص يفتح المصدر بدل أن يعيد قراءة الملف كاملًا.</p>
+        </div>
+        <div class="problem-item ev">
+          <h3 data-ar="للتدقيق" data-en="For audit">للتدقيق</h3>
+          <p data-ar="حين يُسأل عن مصدر رقم في ملف قديم، الإجابة موجودة في التقرير نفسه." data-en="When someone asks where a figure in an old file came from, the answer is in the report itself.">حين يُسأل عن مصدر رقم في ملف قديم، الإجابة موجودة في التقرير نفسه.</p>
+        </div>
+        <div class="problem-item ev">
+          <h3 data-ar="للمسؤولية" data-en="For accountability">للمسؤولية</h3>
+          <p data-ar="لا صندوق أسود. ما لا يستطيع المختص التحقق منه، لا يُبنى عليه قرار." data-en="No black box. What your analyst can't verify shouldn't carry a decision.">لا صندوق أسود. ما لا يستطيع المختص التحقق منه، لا يُبنى عليه قرار.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rp">
+      <div class="rp-h">
+        <span class="n" data-ar="ملخص التحقق" data-en="Verification summary">ملخص التحقق</span>
+        <span class="m ltr">maal_report_0417.pdf</span>
+      </div>
+      <div class="rp-row">
+        <span class="lbl" data-ar="السجل التجاري" data-en="Registration">السجل التجاري</span>
+        <span class="val">1010••••••</span>
+        <span class="badge badge-flag" data-ar="تعارض" data-en="Conflict">تعارض</span>
+      </div>
+      <div class="rp-row">
+        <span class="lbl" data-ar="الرقم الضريبي" data-en="VAT number">الرقم الضريبي</span>
+        <span class="val">3••••••••••••03</span>
+        <span class="badge badge-ok" data-ar="مطابق" data-en="Matched">مطابق</span>
+      </div>
+      <div class="rp-row">
+        <span class="lbl" data-ar="اسم المنشأة" data-en="Entity name">اسم المنشأة</span>
+        <span class="val ar-val" data-ar="مؤسسة البناء المتقدم" data-en="Advanced Construction Est.">مؤسسة البناء المتقدم</span>
+        <span class="badge badge-ok" data-ar="مطابق" data-en="Matched">مطابق</span>
+      </div>
+      <div class="rp-row">
+        <span class="lbl" data-ar="قيمة أمر الشراء" data-en="PO value">قيمة أمر الشراء</span>
+        <span class="val">SAR 2,480,000</span>
+        <span class="badge badge-ok" data-ar="مطابق" data-en="Matched">مطابق</span>
+      </div>
+      <div class="rp-row">
+        <span class="lbl" data-ar="اكتمال الملف" data-en="File completeness">اكتمال الملف</span>
+        <span class="bar"><i style="width:82%"></i></span>
+        <span class="badge badge-ok ltr">7 / 8</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCUMENTS ============ -->
+<section id="documents" style="background:var(--blush-soft)">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-ar="المستندات التي تقرأها مآل" data-en="The documents MAAL reads">المستندات التي تقرأها مآل</h2>
+      <p data-ar="ثمانية أنواع تغطي ملف المقاول أو المورّد النموذجي في السوق السعودي."
+         data-en="Eight types covering the typical contractor or supplier file in the Saudi market.">ثمانية أنواع تغطي ملف المقاول أو المورّد النموذجي في السوق السعودي.</p>
+    </div>
+    <div class="docs">
+      <div class="doc-card"><div class="ar" data-ar="السجل التجاري" data-en="Commercial registration">السجل التجاري</div><div class="en">Commercial Registration</div></div>
+      <div class="doc-card"><div class="ar" data-ar="شهادة ضريبة القيمة المضافة" data-en="VAT certificate">شهادة ضريبة القيمة المضافة</div><div class="en">VAT Certificate</div></div>
+      <div class="doc-card"><div class="ar" data-ar="العقود" data-en="Contracts">العقود</div><div class="en">Contracts</div></div>
+      <div class="doc-card"><div class="ar" data-ar="أوامر الشراء" data-en="Purchase orders">أوامر الشراء</div><div class="en">Purchase Orders</div></div>
+      <div class="doc-card"><div class="ar" data-ar="كشوف الحسابات البنكية" data-en="Bank statements">كشوف الحسابات البنكية</div><div class="en">Bank Statements</div></div>
+      <div class="doc-card"><div class="ar" data-ar="القوائم المالية" data-en="Financial statements">القوائم المالية</div><div class="en">Financial Statements</div></div>
+      <div class="doc-card"><div class="ar" data-ar="تقرير سمة" data-en="SIMAH report">تقرير سمة</div><div class="en">SIMAH Report</div></div>
+      <div class="doc-card"><div class="ar" data-ar="شهادة الزكاة والدخل" data-en="Zakat &amp; income certificate">شهادة الزكاة والدخل</div><div class="en">Zakat &amp; Income Certificate</div></div>
+    </div>
+    <p class="docs-note" data-ar="نوع مستند غير موجود في القائمة؟ إضافته جزء من نطاق التجربة التشغيلية."
+       data-en="A document type not on the list? Adding it is part of the pilot scope.">نوع مستند غير موجود في القائمة؟ إضافته جزء من نطاق التجربة التشغيلية.</p>
+  </div>
+</section>
+
+<!-- ============ WORKFLOW / GOVERNANCE ============ -->
+<section id="workflow" class="dark">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-ar="تعمل داخل عمليتكم، لا بدلًا عنها" data-en="It runs inside your process, not instead of it">تعمل داخل عمليتكم، لا بدلًا عنها</h2>
+      <p data-ar="مآل لا تأتي بسياسة ائتمانية جاهزة. تأتي بطبقة قراءة وتحقق تُركَّب على السياسة التي تعملون بها اليوم."
+         data-en="MAAL doesn't arrive with a credit policy of its own. It's a reading and verification layer that fits the policy you already run.">مآل لا تأتي بسياسة ائتمانية جاهزة. تأتي بطبقة قراءة وتحقق تُركَّب على السياسة التي تعملون بها اليوم.</p>
+    </div>
+    <div class="split">
+      <div>
+        <p class="col-h" data-ar="التكامل" data-en="Integration">التكامل</p>
+        <ul class="list">
+          <li data-ar="المعايير والحدود تُضبط وفق سياستكم الائتمانية." data-en="Criteria and thresholds are set to your credit policy.">المعايير والحدود تُضبط وفق سياستكم الائتمانية.</li>
+          <li data-ar="المخرجات تُسلَّم كتقرير أو عبر واجهة برمجية إلى نظامكم." data-en="Output is delivered as a report or through an API into your system.">المخرجات تُسلَّم كتقرير أو عبر واجهة برمجية إلى نظامكم.</li>
+          <li data-ar="لا تغيير في مسار الموافقات ولا في صلاحيات الاعتماد." data-en="No change to your approval path or your credit authorities.">لا تغيير في مسار الموافقات ولا في صلاحيات الاعتماد.</li>
+          <li data-ar="القرار النهائي يبقى لمختص الائتمان." data-en="The final decision stays with your credit officer.">القرار النهائي يبقى لمختص الائتمان.</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-h" data-ar="حوكمة البيانات" data-en="Data governance">حوكمة البيانات</p>
+        <ul class="list">
+          <li data-ar="مستندات العملاء تبقى ضمن النطاق المتفق عليه، ولا تُستخدم لتدريب نماذج عامة." data-en="Applicant documents stay within the agreed boundary and are never used to train general models.">مستندات العملاء تبقى ضمن النطاق المتفق عليه، ولا تُستخدم لتدريب نماذج عامة.</li>
+          <li data-ar="مدة الاحتفاظ وآلية الحذف تُحدَّد في اتفاقية التجربة." data-en="Retention period and deletion are fixed in the pilot agreement.">مدة الاحتفاظ وآلية الحذف تُحدَّد في اتفاقية التجربة.</li>
+          <li data-ar="صلاحيات وصول محددة وسجل تدقيق لكل عملية معالجة." data-en="Scoped access permissions and an audit log for every processing run.">صلاحيات وصول محددة وسجل تدقيق لكل عملية معالجة.</li>
+          <li data-ar="جاهزية للإجابة على متطلبات الإسناد لدى الجهات الرقابية." data-en="Ready to answer outsourcing questions from your regulator.">جاهزية للإجابة على متطلبات الإسناد لدى الجهات الرقابية.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="claim">
+      <p class="a" data-ar="مآل أداة يشغّلها فريق الائتمان لديكم — وليست جهة معلومات ائتمانية."
+         data-en="MAAL is software your credit team operates. It is not a credit bureau.">مآل أداة يشغّلها فريق الائتمان لديكم — وليست جهة معلومات ائتمانية.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section id="team">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 data-ar="من يبني مآل" data-en="Who builds MAAL">من يبني مآل</h2>
+      <p data-ar="أربعة شركاء مختصين في الذكاء الاصطناعي."
+         data-en="Four partners specialising in artificial intelligence.">أربعة شركاء مختصين في الذكاء الاصطناعي.</p>
+    </div>
+    <div class="team">
+      <div class="member"><div class="av">ع</div><div class="nm" data-ar="عبدالوهاب ولابي" data-en="Abdulwhab Walabi">عبدالوهاب ولابي</div></div>
+      <div class="member"><div class="av">ر</div><div class="nm" data-ar="رؤى الحجيلي" data-en="Ruaa Al-Hujaili">رؤى الحجيلي</div></div>
+      <div class="member"><div class="av">ع</div><div class="nm" data-ar="عهد العنزي" data-en="Ahd Al-Anazi">عهد العنزي</div></div>
+      <div class="member"><div class="av">أ</div><div class="nm" data-ar="أسيل الظاهري" data-en="Aseel Al-Dhahri">أسيل الظاهري</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact" class="dark">
+  <div class="wrap contact">
+    <div>
+      <div class="sec-head">
+        <h2 data-ar="للتجربة التشغيلية" data-en="For the pilot">للتجربة التشغيلية</h2>
+        <p data-ar="نطاق محدد، مدة محددة، وقياس مقابل عمليتكم الحالية. إن لم تتحسن النتيجة، تنتهي التجربة ولا شيء عليكم."
+           data-en="A defined scope, a defined period, and measurement against your current process. If it doesn't improve, the pilot ends and you owe nothing.">نطاق محدد، مدة محددة، وقياس مقابل عمليتكم الحالية. إن لم تتحسن النتيجة، تنتهي التجربة ولا شيء عليكم.</p>
+      </div>
+      <ul class="list pilot">
+        <li data-ar="دفعة من ملفاتكم الحقيقية." data-en="A batch of your real files.">دفعة من ملفاتكم الحقيقية.</li>
+        <li data-ar="نطاق ومدة متفق عليهما مسبقًا." data-en="Scope and duration agreed in advance.">نطاق ومدة متفق عليهما مسبقًا.</li>
+        <li data-ar="القياس مقابل عمليتكم الحالية، لا مقابل وعد." data-en="Measured against your current process, not against a promise.">القياس مقابل عمليتكم الحالية، لا مقابل وعد.</li>
+        <li data-ar="بلا تكلفة خلال فترة التجربة." data-en="No cost during the pilot period.">بلا تكلفة خلال فترة التجربة.</li>
+      </ul>
+    </div>
+    <div class="formcard">
+      <h3 data-ar="تواصل معنا" data-en="Get in touch">تواصل معنا</h3>
+      <p class="sub" data-ar="نرد خلال يومي عمل." data-en="We reply within two working days.">نرد خلال يومي عمل.</p>
+      <div class="f-row">
+        <label for="fn" data-ar="الاسم" data-en="Name">الاسم</label>
+        <input id="fn" type="text" autocomplete="name">
+      </div>
+      <div class="f-row">
+        <label for="fo" data-ar="الجهة" data-en="Organisation">الجهة</label>
+        <input id="fo" type="text" autocomplete="organization">
+      </div>
+      <div class="f-row">
+        <label for="fe" data-ar="البريد الإلكتروني للعمل" data-en="Work email">البريد الإلكتروني للعمل</label>
+        <input id="fe" type="email" autocomplete="email">
+      </div>
+      <div class="f-row">
+        <label for="fm" data-ar="ما الذي تريدون تجربته؟" data-en="What would you like to test?">ما الذي تريدون تجربته؟</label>
+        <textarea id="fm"></textarea>
+      </div>
+      <button class="btn" id="sendBtn" style="width:100%" data-ar="أرسل الطلب" data-en="Send request">أرسل الطلب</button>
+      <div class="f-ok" id="sendOk" role="status" data-ar="وصلنا طلبك. سنرد خلال يومي عمل." data-en="Your request has been received. We'll reply within two working days.">وصلنا طلبك. سنرد خلال يومي عمل.</div>
+      <p class="f-note" data-ar="لا ترسل مستندات عملاء عبر هذا النموذج. نتفق على قناة آمنة قبل أي ملفات."
+         data-en="Please don't send applicant documents through this form. We agree a secure channel before any files move.">لا ترسل مستندات عملاء عبر هذا النموذج. نتفق على قناة آمنة قبل أي ملفات.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-grid">
+      <div>
+        <img src="assets/img/logo-light.png" alt="مآل MAAL">
+        <p class="f-tag" data-ar="الذكاء الائتماني — من البيانات إلى قرار أوضح."
+           data-en="Credit intelligence — from data to a clearer decision.">الذكاء الائتماني — من البيانات إلى قرار أوضح.</p>
+      </div>
+      <div class="f-col">
+        <h4 data-ar="الموقع" data-en="Site">الموقع</h4>
+        <a href="#how" data-ar="كيف تعمل" data-en="How it works">كيف تعمل</a>
+        <a href="#evidence" data-ar="الأدلة" data-en="Evidence">الأدلة</a>
+        <a href="#documents" data-ar="المستندات" data-en="Documents">المستندات</a>
+        <a href="#workflow" data-ar="التكامل وحوكمة البيانات" data-en="Integration and governance">التكامل وحوكمة البيانات</a>
+      </div>
+      <div class="f-col">
+        <h4 data-ar="تواصل" data-en="Contact">تواصل</h4>
+        <a href="mailto:maalscore@gmail.com">maalscore@gmail.com</a>
+        <a href="https://www.linkedin.com/in/maal-ai-749179435" target="_blank" rel="noopener">LinkedIn</a>
+        <p data-ar="المدينة المنورة، المملكة العربية السعودية" data-en="Madinah, Saudi Arabia">المدينة المنورة، المملكة العربية السعودية</p>
+      </div>
+    </div>
+    <div class="f-bot">
+      <span>© 2026 <span data-ar="مآل" data-en="MAAL">مآل</span></span>
+      <span data-ar="تأسست 2026 · المدينة المنورة" data-en="Founded 2026 · Madinah">تأسست 2026 · المدينة المنورة</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
